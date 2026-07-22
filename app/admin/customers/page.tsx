@@ -103,7 +103,7 @@ export default function CustomersPage() {
   return (
     <div className="space-y-6">
       <Card>
-        <h2 className="mb-4 font-semibold text-ink">Register a customer</h2>
+        <h2 className="mb-4 font-display text-lg font-bold tracking-tight text-ink">Register a customer</h2>
         <form
           onSubmit={onAdd}
           className="grid grid-cols-1 items-end gap-4 md:grid-cols-4"
@@ -152,7 +152,7 @@ export default function CustomersPage() {
           hint="Register your first customer above, then top up their card."
         />
       ) : (
-        <Card className="overflow-x-auto p-0">
+        <Card inset="overflow-x-auto p-0">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
               <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500">
@@ -243,7 +243,7 @@ export default function CustomersPage() {
       {txTarget ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <Card className="w-full max-w-sm">
-            <h3 className="font-semibold text-ink">
+            <h3 className="font-display text-lg font-bold tracking-tight text-ink">
               {txType === "topup" ? "Top up" : txType === "charge" ? "Charge" : "Refund"}{" "}
               {txTarget.name}
             </h3>

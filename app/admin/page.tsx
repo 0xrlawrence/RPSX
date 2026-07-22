@@ -41,9 +41,9 @@ export default function AdminOverview() {
 
   return (
     <div className="space-y-6">
-      <Card className="flex flex-wrap items-center justify-between gap-4">
+      <Card inset="flex flex-wrap items-center justify-between gap-4 p-6">
         <div>
-          <h2 className="text-lg font-semibold text-ink">{tenant.name}</h2>
+          <h2 className="font-display text-xl font-bold tracking-tight text-ink">{tenant.name}</h2>
           <p className="text-sm text-zinc-500">
             Your customers sign in on your own portal address.
           </p>
@@ -85,7 +85,7 @@ export default function AdminOverview() {
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold text-ink">Latest activity</h2>
+          <h2 className="font-display text-lg font-bold tracking-tight text-ink">Latest activity</h2>
           <Link
             href="/admin/transactions"
             className="text-sm font-medium text-cobalt-700 hover:text-cobalt-800"

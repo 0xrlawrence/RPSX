@@ -128,12 +128,14 @@ export default function TenantPortal({
 
   return (
     <div className="min-h-[100dvh]">
-      <header className="mx-auto flex h-16 max-w-2xl items-center justify-between px-6">
+      <header className="mx-auto flex h-20 max-w-2xl items-center justify-between px-6">
         <div>
-          <p className="text-lg font-bold tracking-tight text-ink">
+          <p className="font-display text-xl font-bold tracking-tight text-ink">
             {tenant.name}
           </p>
-          <p className="text-xs text-zinc-500">Powered by RPSX</p>
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-400">
+            Powered by RPSX
+          </p>
         </div>
         {isMember ? (
           <button
@@ -160,7 +162,7 @@ export default function TenantPortal({
           </div>
         ) : (
           <div className="mx-auto max-w-sm">
-            <h1 className="text-2xl font-semibold tracking-tight text-ink">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-ink">
               {mode === "signin" ? "Check your balance" : "Create your account"}
             </h1>
             <p className="mt-1.5 text-sm text-zinc-600">

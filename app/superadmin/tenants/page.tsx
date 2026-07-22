@@ -59,7 +59,7 @@ export default function TenantsPage() {
           hint="Businesses appear here as owners sign up from the admin portal."
         />
       ) : (
-        <Card className="overflow-x-auto p-0">
+        <Card inset="overflow-x-auto p-0">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
               <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500">
