@@ -17,6 +17,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { DEMO_MODE, demoDb } from "./demo";
 import { slugify } from "./tenant-url";
 import type {
   Customer,
@@ -43,6 +44,7 @@ export async function createUserProfile(
   uid: string,
   data: Omit<UserProfile, "uid" | "createdAt">,
 ) {
+  if (DEMO_MODE) return;
   await setDoc(doc(db(), "users", uid), {
     uid,
     ...data,
@@ -59,6 +61,7 @@ export async function createTenant(input: {
   currency?: string;
 }): Promise<{ tenantId: string; slug: string }> {
   const slug = await ensureUniqueSlug(slugify(input.name));
+  if (DEMO_MODE) return demoDb.createTenant({ ...input, slug });
   const ref = await addDoc(collection(db(), "tenants"), {
     name: input.name,
     slug,
@@ -73,11 +76,13 @@ export async function createTenant(input: {
 }
 
 export async function getTenant(tenantId: string): Promise<Tenant | null> {
+  if (DEMO_MODE) return demoDb.getTenant(tenantId);
   const snap = await getDoc(doc(db(), "tenants", tenantId));
   return snap.exists() ? ({ id: snap.id, ...snap.data() } as Tenant) : null;
 }
 
 export async function listTenants(): Promise<Tenant[]> {
+  if (DEMO_MODE) return demoDb.listTenants();
   const snap = await getDocs(
     query(collection(db(), "tenants"), orderBy("createdAt", "desc")),
   );
@@ -88,14 +93,17 @@ export async function updateTenant(
   tenantId: string,
   patch: Partial<Pick<Tenant, "name" | "status" | "plan" | "currency">>,
 ) {
+  if (DEMO_MODE) return demoDb.updateTenant(tenantId, patch);
   await updateDoc(doc(db(), "tenants", tenantId), patch);
 }
 
 export async function deleteTenant(tenantId: string) {
+  if (DEMO_MODE) return demoDb.deleteTenant(tenantId);
   await deleteDoc(doc(db(), "tenants", tenantId));
 }
 
 export async function findTenantBySlug(slug: string): Promise<Tenant | null> {
+  if (DEMO_MODE) return demoDb.findTenantBySlug(slug);
   const snap = await getDocs(
     query(
       collection(db(), "tenants"),
@@ -115,6 +123,7 @@ function customersCol(tenantId: string) {
 }
 
 export async function listCustomers(tenantId: string): Promise<Customer[]> {
+  if (DEMO_MODE) return demoDb.listCustomers(tenantId);
   const snap = await getDocs(
     query(customersCol(tenantId), orderBy("createdAt", "desc")),
   );
@@ -125,6 +134,7 @@ export async function addCustomer(
   tenantId: string,
   input: { name: string; email: string; cardUid: string },
 ): Promise<string> {
+  if (DEMO_MODE) return demoDb.addCustomer(tenantId, input);
   const ref = await addDoc(customersCol(tenantId), {
     name: input.name,
     email: input.email.toLowerCase().trim(),
@@ -141,10 +151,12 @@ export async function updateCustomer(
   customerId: string,
   patch: Partial<Pick<Customer, "name" | "email" | "cardUid" | "status">>,
 ) {
+  if (DEMO_MODE) return demoDb.updateCustomer(tenantId, customerId, patch);
   await updateDoc(doc(customersCol(tenantId), customerId), patch);
 }
 
 export async function deleteCustomer(tenantId: string, customerId: string) {
+  if (DEMO_MODE) return demoDb.deleteCustomer(tenantId, customerId);
   await deleteDoc(doc(customersCol(tenantId), customerId));
 }
 
@@ -152,6 +164,7 @@ export async function getCustomer(
   tenantId: string,
   customerId: string,
 ): Promise<Customer | null> {
+  if (DEMO_MODE) return demoDb.getCustomer(tenantId, customerId);
   const snap = await getDoc(doc(customersCol(tenantId), customerId));
   return snap.exists() ? ({ id: snap.id, ...snap.data() } as Customer) : null;
 }
@@ -175,6 +188,7 @@ export async function applyWalletTx(input: {
   byUid: string;
   note?: string;
 }): Promise<void> {
+  if (DEMO_MODE) return demoDb.applyWalletTx(input);
   if (!Number.isInteger(input.amountCents) || input.amountCents <= 0) {
     throw new Error("Amount must be a positive number.");
   }
@@ -213,6 +227,7 @@ export async function listTransactions(
   tenantId: string,
   opts?: { customerId?: string; max?: number },
 ): Promise<WalletTx[]> {
+  if (DEMO_MODE) return demoDb.listTransactions(tenantId, opts);
   const clauses = [
     ...(opts?.customerId
       ? [where("customerId", "==", opts.customerId)]
@@ -237,6 +252,7 @@ export async function linkCustomerAccount(input: {
   displayName: string;
   slug: string;
 }): Promise<{ tenantId: string; customerId: string }> {
+  if (DEMO_MODE) return demoDb.linkCustomerAccount(input);
   const tenant = await findTenantBySlug(input.slug);
   if (!tenant) throw new Error("This venue portal does not exist.");
 
@@ -274,6 +290,7 @@ export interface PlatformStats {
 }
 
 export async function getPlatformStats(): Promise<PlatformStats> {
+  if (DEMO_MODE) return demoDb.getPlatformStats();
   const [tenantsSnap, activeSnap, customersSnap, txSnap] = await Promise.all([
     getCountFromServer(collection(db(), "tenants")),
     getCountFromServer(

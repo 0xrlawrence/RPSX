@@ -2,13 +2,19 @@
 
 import { use, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
-import { firebaseAuth, isFirebaseConfigured } from "@/lib/firebase";
-import { findTenantBySlug, linkCustomerAccount } from "@/lib/db";
+// TEMPORARY guest access: Firebase auth is bypassed. To restore it, remove
+// the demo block in onSubmit, un-comment the Firebase imports and code
+// below, and set DEMO_MODE to false in lib/demo.ts.
+// import {
+//   createUserWithEmailAndPassword,
+//   signInWithEmailAndPassword,
+//   updateProfile,
+// } from "firebase/auth";
+// import { firebaseAuth } from "@/lib/firebase";
+// import { linkCustomerAccount } from "@/lib/db";
+import { isFirebaseConfigured } from "@/lib/firebase";
+import { findTenantBySlug } from "@/lib/db";
+import { DEMO_CREDENTIALS, DEMO_MODE, demoSignIn } from "@/lib/demo";
 import { useAuth } from "@/lib/auth-context";
 import { WalletView } from "@/components/wallet-view";
 import { Button, ErrorNote, Field, Input, Spinner } from "@/components/ui";
@@ -25,13 +31,13 @@ export default function TenantPortal({
   const [tenant, setTenant] = useState<Tenant | null | "missing">(null);
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(DEMO_CREDENTIALS.customer.email);
+  const [password, setPassword] = useState(DEMO_CREDENTIALS.customer.password);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured && !DEMO_MODE) return;
     findTenantBySlug(slug)
       .then((t) => setTenant(t ?? "missing"))
       .catch(() => setTenant("missing"));
@@ -42,6 +48,21 @@ export default function TenantPortal({
     if (!tenant || tenant === "missing") return;
     setError("");
     setBusy(true);
+
+    // TEMPORARY guest access
+    if (
+      email.trim() === DEMO_CREDENTIALS.customer.email &&
+      password === DEMO_CREDENTIALS.customer.password
+    ) {
+      demoSignIn("customer");
+      await refreshProfile();
+      setBusy(false);
+      return;
+    }
+    setError("Guest mode: use the prefilled credentials to sign in.");
+    setBusy(false);
+
+    /* Firebase auth (restore with DEMO_MODE = false):
     try {
       if (mode === "signin") {
         await signInWithEmailAndPassword(firebaseAuth(), email, password);
@@ -65,9 +86,10 @@ export default function TenantPortal({
     } finally {
       setBusy(false);
     }
+    */
   }
 
-  if (!isFirebaseConfigured) {
+  if (!isFirebaseConfigured && !DEMO_MODE) {
     return (
       <div className="mx-auto max-w-lg px-6 py-24 text-center">
         <h1 className="text-xl font-semibold text-ink">
@@ -146,6 +168,12 @@ export default function TenantPortal({
                 ? `Sign in to see your wallet at ${tenant.name}.`
                 : `Use the email ${tenant.name} registered for your card.`}
             </p>
+            {tenant.slug === "northgate-coffee" ? (
+              <p className="mt-4 rounded-lg border border-cobalt-100 bg-cobalt-50 px-3 py-2 text-sm text-cobalt-700">
+                Guest access is on. Credentials are prefilled, just press Sign
+                in.
+              </p>
+            ) : null}
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               {mode === "signup" ? (
                 <Field label="Your name">

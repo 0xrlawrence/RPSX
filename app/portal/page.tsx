@@ -15,7 +15,8 @@ import { Button, Field, Input, Spinner } from "@/components/ui";
 export default function FindVenuePage() {
   const router = useRouter();
   const { profile, loading } = useAuth();
-  const [venue, setVenue] = useState("");
+  // Prefilled with the guest-access demo venue.
+  const [venue, setVenue] = useState("northgate-coffee");
 
   useEffect(() => {
     if (loading) return;
