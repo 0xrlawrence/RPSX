@@ -1,18 +1,22 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { firebaseAuth, db } from "@/lib/firebase";
+// TEMPORARY guest access: Firebase auth is bypassed. To restore it, remove
+// the demo block in onSubmit, un-comment the Firebase imports and code
+// below, and set DEMO_MODE to false in lib/demo.ts.
+// import { useRouter } from "next/navigation";
+// import { signInWithEmailAndPassword } from "firebase/auth";
+// import { doc, getDoc } from "firebase/firestore";
+// import { firebaseAuth, db } from "@/lib/firebase";
+// import type { UserProfile } from "@/lib/types";
+import { DEMO_CREDENTIALS, demoSignIn } from "@/lib/demo";
 import { AuthCard } from "@/components/auth-card";
 import { Button, ErrorNote, Field, Input } from "@/components/ui";
-import type { UserProfile } from "@/lib/types";
 
 export default function SuperadminLoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // const router = useRouter();
+  const [email, setEmail] = useState(DEMO_CREDENTIALS.superadmin.email);
+  const [password, setPassword] = useState(DEMO_CREDENTIALS.superadmin.password);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -20,6 +24,20 @@ export default function SuperadminLoginPage() {
     e.preventDefault();
     setError("");
     setBusy(true);
+
+    // TEMPORARY guest access
+    if (
+      email.trim() === DEMO_CREDENTIALS.superadmin.email &&
+      password === DEMO_CREDENTIALS.superadmin.password
+    ) {
+      demoSignIn("superadmin");
+      window.location.href = "/superadmin";
+      return;
+    }
+    setError("Guest mode: use the prefilled credentials to sign in.");
+    setBusy(false);
+
+    /* Firebase sign-in (restore with DEMO_MODE = false):
     try {
       const cred = await signInWithEmailAndPassword(
         firebaseAuth(),
@@ -37,6 +55,7 @@ export default function SuperadminLoginPage() {
       setError(err instanceof Error ? err.message : "Sign in failed.");
       setBusy(false);
     }
+    */
   }
 
   return (
@@ -44,6 +63,9 @@ export default function SuperadminLoginPage() {
       heading="Platform console"
       lede="Sign in with your RPSX operator account."
     >
+      <p className="mb-4 rounded-lg border border-cobalt-100 bg-cobalt-50 px-3 py-2 text-sm text-cobalt-700">
+        Guest access is on. Credentials are prefilled, just press Sign in.
+      </p>
       <form onSubmit={onSubmit} className="space-y-4">
         <Field label="Email">
           <Input

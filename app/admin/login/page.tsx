@@ -2,24 +2,28 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
-import { firebaseAuth } from "@/lib/firebase";
-import { createTenant, createUserProfile } from "@/lib/db";
+// TEMPORARY guest access: Firebase auth is bypassed. To restore it, remove
+// the demo block in onSubmit, un-comment the Firebase imports and code
+// below, and set DEMO_MODE to false in lib/demo.ts.
+// import { useRouter } from "next/navigation";
+// import {
+//   createUserWithEmailAndPassword,
+//   signInWithEmailAndPassword,
+//   updateProfile,
+// } from "firebase/auth";
+// import { firebaseAuth } from "@/lib/firebase";
+// import { createTenant, createUserProfile } from "@/lib/db";
+import { DEMO_CREDENTIALS, demoSignIn } from "@/lib/demo";
 import { AuthCard } from "@/components/auth-card";
 import { Button, ErrorNote, Field, Input } from "@/components/ui";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [businessName, setBusinessName] = useState("");
   const [ownerName, setOwnerName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(DEMO_CREDENTIALS.admin.email);
+  const [password, setPassword] = useState(DEMO_CREDENTIALS.admin.password);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -27,6 +31,20 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError("");
     setBusy(true);
+
+    // TEMPORARY guest access: both sign-in and signup enter the demo venue.
+    if (
+      email.trim() === DEMO_CREDENTIALS.admin.email &&
+      password === DEMO_CREDENTIALS.admin.password
+    ) {
+      demoSignIn("admin");
+      window.location.href = "/admin";
+      return;
+    }
+    setError("Guest mode: use the prefilled credentials to sign in.");
+    setBusy(false);
+
+    /* Firebase auth (restore with DEMO_MODE = false):
     try {
       if (mode === "signin") {
         await signInWithEmailAndPassword(firebaseAuth(), email, password);
@@ -54,6 +72,7 @@ export default function AdminLoginPage() {
       setError(err instanceof Error ? err.message : "Something went wrong.");
       setBusy(false);
     }
+    */
   }
 
   return (
@@ -88,6 +107,10 @@ export default function AdminLoginPage() {
         )
       }
     >
+      <p className="mb-4 rounded-lg border border-cobalt-100 bg-cobalt-50 px-3 py-2 text-sm text-cobalt-700">
+        Guest access is on. Credentials are prefilled and open the Northgate
+        Coffee demo venue.
+      </p>
       <form onSubmit={onSubmit} className="space-y-4">
         {mode === "signup" ? (
           <>
@@ -134,19 +157,12 @@ export default function AdminLoginPage() {
         </Field>
         <ErrorNote message={error} />
         <Button type="submit" disabled={busy} className="w-full">
-          {busy
-            ? "Working"
-            : mode === "signin"
-              ? "Sign in"
-              : "Create venue"}
+          {busy ? "Working" : mode === "signin" ? "Sign in" : "Create venue"}
         </Button>
       </form>
       <p className="mt-4 text-xs text-zinc-500">
         Customer of a venue?{" "}
-        <Link
-          href="/portal"
-          className="font-medium text-zinc-700 hover:text-ink"
-        >
+        <Link href="/portal" className="font-medium text-zinc-700 hover:text-ink">
           Find your venue portal
         </Link>
       </p>
