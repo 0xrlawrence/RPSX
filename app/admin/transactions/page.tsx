@@ -18,7 +18,7 @@ export default function TransactionsPage() {
       .catch((e) => setError(e instanceof Error ? e.message : "Load failed."));
   }, [profile?.tenantId]);
 
-  if (error) return <p className="text-sm text-rose-300">{error}</p>;
+  if (error) return <p className="text-sm text-rose-700">{error}</p>;
   if (!txs) return <Spinner />;
 
   if (txs.length === 0) {
@@ -34,7 +34,7 @@ export default function TransactionsPage() {
     <Card className="overflow-x-auto p-0">
       <table className="w-full min-w-[720px] text-left text-sm">
         <thead>
-          <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-zinc-500">
+          <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500">
             <th className="px-5 py-3 font-medium">When</th>
             <th className="px-5 py-3 font-medium">Customer</th>
             <th className="px-5 py-3 font-medium">Type</th>
@@ -43,16 +43,16 @@ export default function TransactionsPage() {
             <th className="px-5 py-3 font-medium">Note</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/5">
+        <tbody className="divide-y divide-zinc-100">
           {txs.map((tx) => (
             <tr key={tx.id}>
-              <td className="px-5 py-3 text-zinc-400">
+              <td className="px-5 py-3 text-zinc-500">
                 {tx.createdAt?.toDate
                   ? tx.createdAt.toDate().toLocaleString()
                   : "Pending"}
               </td>
               <td className="px-5 py-3">
-                <p className="font-medium text-zinc-200">{tx.customerName}</p>
+                <p className="font-medium text-ink">{tx.customerName}</p>
                 <p className="font-mono text-xs text-zinc-500">{tx.cardUid}</p>
               </td>
               <td className="px-5 py-3">
@@ -62,13 +62,13 @@ export default function TransactionsPage() {
               </td>
               <td
                 className={`px-5 py-3 font-semibold ${
-                  tx.type === "charge" ? "text-zinc-300" : "text-emerald-300"
+                  tx.type === "charge" ? "text-zinc-700" : "text-cobalt-700"
                 }`}
               >
                 {tx.type === "charge" ? "-" : "+"}
                 {formatCents(tx.amountCents)}
               </td>
-              <td className="px-5 py-3 text-zinc-300">
+              <td className="px-5 py-3 text-zinc-700">
                 {formatCents(tx.balanceAfterCents)}
               </td>
               <td className="px-5 py-3 text-zinc-500">{tx.note || ""}</td>

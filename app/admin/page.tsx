@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { getTenant, listCustomers, listTransactions } from "@/lib/db";
-import { Badge, Card, Spinner, StatTile } from "@/components/ui";
+import { ROOT_DOMAIN, tenantUrl } from "@/lib/tenant-url";
+import { Badge, Button, Card, Spinner, StatTile } from "@/components/ui";
 import { formatCents, type Customer, type Tenant, type WalletTx } from "@/lib/types";
 
 export default function AdminOverview() {
@@ -14,6 +15,7 @@ export default function AdminOverview() {
   const [recentTx, setRecentTx] = useState<WalletTx[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!profile?.tenantId) return;
@@ -32,7 +34,7 @@ export default function AdminOverview() {
       .finally(() => setLoading(false));
   }, [profile?.tenantId]);
 
-  if (error) return <p className="text-sm text-rose-300">{error}</p>;
+  if (error) return <p className="text-sm text-rose-700">{error}</p>;
   if (loading || !tenant) return <Spinner />;
 
   const totalFloat = customers.reduce((sum, c) => sum + c.balanceCents, 0);
@@ -41,13 +43,30 @@ export default function AdminOverview() {
     <div className="space-y-6">
       <Card className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-zinc-100">{tenant.name}</h2>
-          <p className="text-sm text-zinc-400">
-            Customers claim their wallet with this join code.
+          <h2 className="text-lg font-semibold text-ink">{tenant.name}</h2>
+          <p className="text-sm text-zinc-500">
+            Your customers sign in on your own portal address.
           </p>
         </div>
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 font-mono text-lg tracking-[0.3em] text-emerald-300">
-          {tenant.joinCode}
+        <div className="flex items-center gap-2">
+          <a
+            href={tenantUrl(tenant.slug)}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg border border-cobalt-100 bg-cobalt-50 px-4 py-2 font-mono text-sm text-cobalt-700 hover:bg-cobalt-100"
+          >
+            {ROOT_DOMAIN ? `${tenant.slug}.${ROOT_DOMAIN}` : `/t/${tenant.slug}`}
+          </a>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              navigator.clipboard.writeText(tenantUrl(tenant.slug));
+              setCopied(true);
+              setTimeout(() => setCopied(false), 1500);
+            }}
+          >
+            {copied ? "Copied" : "Copy link"}
+          </Button>
         </div>
       </Card>
 
@@ -66,10 +85,10 @@ export default function AdminOverview() {
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold text-zinc-100">Latest activity</h2>
+          <h2 className="font-semibold text-ink">Latest activity</h2>
           <Link
             href="/admin/transactions"
-            className="text-sm font-medium text-emerald-400 hover:text-emerald-300"
+            className="text-sm font-medium text-cobalt-700 hover:text-cobalt-800"
           >
             View all
           </Link>
@@ -79,11 +98,11 @@ export default function AdminOverview() {
             No transactions yet. Add a customer and make the first top-up.
           </p>
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="divide-y divide-zinc-100">
             {recentTx.map((tx) => (
               <div key={tx.id} className="flex items-center justify-between py-3">
                 <div>
-                  <p className="text-sm font-medium text-zinc-200">
+                  <p className="text-sm font-medium text-ink">
                     {tx.customerName}
                   </p>
                   <p className="text-xs text-zinc-500">Card {tx.cardUid}</p>
@@ -95,8 +114,8 @@ export default function AdminOverview() {
                   <span
                     className={`text-sm font-semibold ${
                       tx.type === "charge"
-                        ? "text-zinc-300"
-                        : "text-emerald-300"
+                        ? "text-zinc-700"
+                        : "text-cobalt-700"
                     }`}
                   >
                     {tx.type === "charge" ? "-" : "+"}

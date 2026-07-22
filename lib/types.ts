@@ -20,8 +20,8 @@ export type TenantPlan = "starter" | "growth" | "scale";
 export interface Tenant {
   id: string;
   name: string;
-  /** Short code customers use to link their account to this business. */
-  joinCode: string;
+  /** URL identity of the business: {slug}.rpsx.app and /t/{slug}. */
+  slug: string;
   ownerUid: string;
   ownerEmail: string;
   currency: string;

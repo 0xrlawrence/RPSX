@@ -21,7 +21,7 @@ export default function SuperadminOverview() {
   }, []);
 
   if (error)
-    return <p className="text-sm text-rose-300">{error}</p>;
+    return <p className="text-sm text-rose-700">{error}</p>;
   if (!stats) return <Spinner />;
 
   return (
@@ -38,22 +38,22 @@ export default function SuperadminOverview() {
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold text-zinc-100">Newest businesses</h2>
+          <h2 className="font-semibold text-ink">Newest businesses</h2>
           <Link
             href="/superadmin/tenants"
-            className="text-sm font-medium text-emerald-400 hover:text-emerald-300"
+            className="text-sm font-medium text-cobalt-700 hover:text-cobalt-800"
           >
             Manage all
           </Link>
         </div>
-        <div className="divide-y divide-white/5">
+        <div className="divide-y divide-zinc-100">
           {recent.map((t) => (
             <div
               key={t.id}
               className="flex items-center justify-between py-3"
             >
               <div>
-                <p className="text-sm font-medium text-zinc-200">{t.name}</p>
+                <p className="text-sm font-medium text-ink">{t.name}</p>
                 <p className="text-xs text-zinc-500">{t.ownerEmail}</p>
               </div>
               <Badge tone={t.status === "active" ? "good" : "warn"}>

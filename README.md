@@ -8,7 +8,14 @@ Multi-tenant cashless RFID wallet SaaS for coffee shops, food parks, and canteen
 | --- | --- | --- | --- |
 | Platform console | `/superadmin` (login at `/superadmin/login`) | You, the SaaS operator | Platform analytics, CRUD over every business: plans, suspension, deletion |
 | Venue dashboard | `/admin` (login at `/admin/login`) | Business owners | Only their own tenant: customers, RFID cards, top-ups, charges, refunds, ledger |
-| Customer portal | `/portal` (login at `/portal/login`) | End customers | Their own balance, card status, and tap history |
+| Venue customer portal | `{slug}.rpsx.app` or `/t/{slug}` | End customers | Their own balance, card status, and tap history, branded per venue |
+
+## Subdomain tenancy
+
+Each business gets a URL slug at signup (from its name, uniqueness enforced). Customers use the venue's own portal address:
+
+- **Subdomain:** `northgate-coffee.rpsx.app`. Set `NEXT_PUBLIC_ROOT_DOMAIN=rpsx.app`, add a wildcard domain (`*.rpsx.app`) to the Vercel project, and `middleware.ts` rewrites each subdomain to that tenant's portal.
+- **Path fallback:** `/t/northgate-coffee` always works, including on `*.vercel.app` where wildcard subdomains are not available.
 
 ## Architecture
 
@@ -16,7 +23,7 @@ Multi-tenant cashless RFID wallet SaaS for coffee shops, food parks, and canteen
 
 ```
 users/{uid}                     role: superadmin | admin | customer, tenantId, customerId
-tenants/{tenantId}              name, joinCode, ownerUid, plan, status, currency
+tenants/{tenantId}              name, slug, ownerUid, plan, status, currency
 tenants/{tenantId}/customers/{customerId}
                                 name, email, cardUid, balanceCents, status, linkedUid
 tenants/{tenantId}/transactions/{txId}
@@ -40,7 +47,7 @@ Top-ups, charges, and refunds run inside a Firestore transaction (`applyWalletTx
 ### Customer onboarding flow
 
 1. Staff registers the customer (name, email, RFID card UID) in the venue dashboard.
-2. The customer opens the portal, picks "Claim your wallet", and enters the venue's 6-character join code plus the same email.
+2. The customer opens the venue's portal ({slug}.rpsx.app or /t/{slug}) and creates an account with the same email.
 3. The signup links their Firebase Auth uid to the customer record; from then on they see their live balance and history.
 
 ## Setup

@@ -6,6 +6,7 @@ import {
   listTenants,
   updateTenant,
 } from "@/lib/db";
+import { tenantUrl } from "@/lib/tenant-url";
 import {
   Badge,
   Button,
@@ -61,23 +62,30 @@ export default function TenantsPage() {
         <Card className="overflow-x-auto p-0">
           <table className="w-full min-w-[720px] text-left text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-zinc-500">
+              <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500">
                 <th className="px-5 py-3 font-medium">Business</th>
-                <th className="px-5 py-3 font-medium">Join code</th>
+                <th className="px-5 py-3 font-medium">Portal</th>
                 <th className="px-5 py-3 font-medium">Plan</th>
                 <th className="px-5 py-3 font-medium">Status</th>
                 <th className="px-5 py-3 font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-zinc-100">
               {tenants.map((t) => (
                 <tr key={t.id}>
                   <td className="px-5 py-3">
-                    <p className="font-medium text-zinc-200">{t.name}</p>
+                    <p className="font-medium text-ink">{t.name}</p>
                     <p className="text-xs text-zinc-500">{t.ownerEmail}</p>
                   </td>
-                  <td className="px-5 py-3 font-mono text-zinc-300">
-                    {t.joinCode}
+                  <td className="px-5 py-3">
+                    <a
+                      href={tenantUrl(t.slug)}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-mono text-cobalt-700 hover:text-cobalt-800"
+                    >
+                      /t/{t.slug}
+                    </a>
                   </td>
                   <td className="px-5 py-3">
                     <Select

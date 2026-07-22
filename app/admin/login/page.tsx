@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
           password,
         );
         await updateProfile(cred.user, { displayName: ownerName });
-        const tenantId = await createTenant({
+        const { tenantId } = await createTenant({
           name: businessName,
           ownerUid: cred.user.uid,
           ownerEmail: email.toLowerCase().trim(),
@@ -69,7 +69,7 @@ export default function AdminLoginPage() {
           <p>
             New to RPSX?{" "}
             <button
-              className="font-semibold text-emerald-400 hover:text-emerald-300"
+              className="font-semibold text-cobalt-700 hover:text-cobalt-800"
               onClick={() => setMode("signup")}
             >
               Create your venue
@@ -79,7 +79,7 @@ export default function AdminLoginPage() {
           <p>
             Already registered?{" "}
             <button
-              className="font-semibold text-emerald-400 hover:text-emerald-300"
+              className="font-semibold text-cobalt-700 hover:text-cobalt-800"
               onClick={() => setMode("signin")}
             >
               Sign in instead
@@ -144,10 +144,10 @@ export default function AdminLoginPage() {
       <p className="mt-4 text-xs text-zinc-500">
         Customer of a venue?{" "}
         <Link
-          href="/portal/login"
-          className="font-medium text-zinc-300 hover:text-zinc-100"
+          href="/portal"
+          className="font-medium text-zinc-700 hover:text-ink"
         >
-          Go to the customer portal
+          Find your venue portal
         </Link>
       </p>
     </AuthCard>
