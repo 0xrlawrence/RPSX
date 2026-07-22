@@ -1,0 +1,89 @@
+rules_version = '2';
+
+// RPSX multi-tenant isolation rules.
+//
+// Roles live in /users/{uid}. Superadmin profiles must be created out of
+// band (Firebase console or an Admin SDK seed script), never from the
+// client. Admins and customers may only create their own profile with
+// their own role, and role/tenant fields are immutable afterwards.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function me() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isSuperadmin() {
+      return signedIn() && me().role == 'superadmin';
+    }
+
+    function isTenantAdmin(tenantId) {
+      return signedIn() && me().role == 'admin' && me().tenantId == tenantId;
+    }
+
+    function isTenantCustomer(tenantId) {
+      return signedIn() && me().role == 'customer' && me().tenantId == tenantId;
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isSuperadmin());
+      // Self-registration may only claim admin or customer, never superadmin.
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role in ['admin', 'customer'];
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isSuperadmin();
+    }
+
+    match /tenants/{tenantId} {
+      // Join-code lookup during customer signup requires a signed-in query;
+      // reads are limited to signed-in users.
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isSuperadmin()
+        || (isTenantAdmin(tenantId)
+            && request.resource.data.ownerUid == resource.data.ownerUid
+            && request.resource.data.status == resource.data.status
+            && request.resource.data.plan == resource.data.plan);
+      allow delete: if isSuperadmin();
+
+      match /customers/{customerId} {
+        allow read: if isSuperadmin()
+          || isTenantAdmin(tenantId)
+          || (isTenantCustomer(tenantId)
+              && (resource.data.linkedUid == request.auth.uid
+                  || resource.data.email == me().email));
+        allow create: if isSuperadmin() || isTenantAdmin(tenantId);
+        // A customer may only set linkedUid on their own record during
+        // account linking; everything else is admin territory.
+        allow update: if isSuperadmin()
+          || isTenantAdmin(tenantId)
+          || (signedIn()
+              && resource.data.email == request.auth.token.email
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['linkedUid'])
+              && request.resource.data.linkedUid == request.auth.uid);
+        allow delete: if isSuperadmin() || isTenantAdmin(tenantId);
+      }
+
+      match /transactions/{txId} {
+        allow read: if isSuperadmin()
+          || isTenantAdmin(tenantId)
+          || (isTenantCustomer(tenantId)
+              && resource.data.customerId == me().customerId);
+        // Balance mutations happen inside client transactions started by
+        // tenant staff; customers can never write money movements.
+        allow create: if isSuperadmin() || isTenantAdmin(tenantId);
+        allow update, delete: if isSuperadmin();
+      }
+    }
+  }
+}
