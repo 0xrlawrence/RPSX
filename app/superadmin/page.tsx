@@ -38,7 +38,7 @@ export default function SuperadminOverview() {
 
       <Card>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-semibold text-ink">Newest businesses</h2>
+          <h2 className="font-display text-lg font-bold tracking-tight text-ink">Newest businesses</h2>
           <Link
             href="/superadmin/tenants"
             className="text-sm font-medium text-cobalt-700 hover:text-cobalt-800"

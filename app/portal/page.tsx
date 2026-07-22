@@ -41,7 +41,7 @@ export default function FindVenuePage() {
         <Link href="/" className="text-lg font-bold tracking-tight text-ink">
           RPSX
         </Link>
-        <h1 className="mt-6 text-2xl font-semibold tracking-tight text-ink">
+        <h1 className="mt-6 font-display text-3xl font-bold tracking-tight text-ink">
           Find your venue
         </h1>
         <p className="mt-1.5 text-sm text-zinc-600">

@@ -33,10 +33,13 @@ export function AuthCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-10">
-          <Link href="/" className="text-xl font-bold tracking-tight text-white">
+          <Link
+            href="/"
+            className="font-display text-xl font-bold tracking-tight text-white"
+          >
             RPSX
           </Link>
-          <p className="mt-3 max-w-sm text-2xl font-semibold leading-snug tracking-tight text-white">
+          <p className="mt-3 max-w-sm font-display text-3xl font-bold leading-snug tracking-tight text-white">
             The counter keeps moving. The ledger keeps up.
           </p>
         </div>
@@ -50,7 +53,7 @@ export function AuthCard({
           >
             RPSX
           </Link>
-          <h1 className="mt-6 text-2xl font-semibold tracking-tight text-ink lg:mt-0">
+          <h1 className="mt-6 font-display text-3xl font-bold tracking-tight text-ink lg:mt-0">
             {heading}
           </h1>
           <p className="mt-1.5 text-sm text-zinc-600">{lede}</p>
