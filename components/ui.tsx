@@ -16,15 +16,15 @@ export function Button({
 }) {
   const styles = {
     primary:
-      "bg-emerald-500 text-ink-950 hover:bg-emerald-400 disabled:bg-emerald-500/40",
+      "bg-cobalt-600 text-white hover:bg-cobalt-700 disabled:bg-cobalt-200",
     ghost:
-      "bg-ink-800 text-zinc-200 hover:bg-ink-700 border border-white/10 disabled:opacity-50",
+      "bg-surface text-zinc-700 border border-zinc-300 hover:border-zinc-400 hover:text-ink disabled:opacity-50",
     danger:
-      "bg-rose-500/10 text-rose-300 border border-rose-500/30 hover:bg-rose-500/20 disabled:opacity-50",
+      "bg-surface text-rose-700 border border-rose-200 hover:bg-rose-50 disabled:opacity-50",
   }[variant];
   return (
     <button
-      className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed ${styles} ${className}`}
+      className={`inline-flex h-10 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all active:translate-y-px disabled:cursor-not-allowed ${styles} ${className}`}
       {...props}
     />
   );
@@ -39,7 +39,7 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1.5 block text-sm font-medium text-zinc-300">
+      <span className="mb-1.5 block text-sm font-medium text-zinc-700">
         {label}
       </span>
       {children}
@@ -51,7 +51,7 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
-      className={`h-10 w-full rounded-lg border border-white/10 bg-ink-800 px-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-emerald-500/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${props.className ?? ""}`}
+      className={`h-10 w-full rounded-lg border border-zinc-300 bg-surface px-3 text-sm text-ink placeholder:text-zinc-400 focus:border-cobalt-600 focus:outline-none focus:ring-2 focus:ring-cobalt-100 ${props.className ?? ""}`}
     />
   );
 }
@@ -60,7 +60,7 @@ export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <select
       {...props}
-      className={`h-10 w-full rounded-lg border border-white/10 bg-ink-800 px-3 text-sm text-zinc-100 focus:border-emerald-500/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 ${props.className ?? ""}`}
+      className={`h-10 w-full rounded-lg border border-zinc-300 bg-surface px-3 text-sm text-ink focus:border-cobalt-600 focus:outline-none focus:ring-2 focus:ring-cobalt-100 ${props.className ?? ""}`}
     />
   );
 }
@@ -74,7 +74,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-xl border border-white/10 bg-ink-900 p-5 ${className}`}
+      className={`rounded-xl border border-zinc-200 bg-surface p-5 shadow-[0_1px_2px_rgba(25,26,28,0.04)] ${className}`}
     >
       {children}
     </div>
@@ -84,7 +84,7 @@ export function Card({
 export function ErrorNote({ message }: { message: string }) {
   if (!message) return null;
   return (
-    <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
+    <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">
       {message}
     </p>
   );
@@ -98,9 +98,9 @@ export function Badge({
   children: ReactNode;
 }) {
   const styles = {
-    good: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
-    warn: "bg-rose-500/10 text-rose-300 border-rose-500/30",
-    neutral: "bg-white/5 text-zinc-300 border-white/10",
+    good: "bg-emerald-50 text-emerald-800 border-emerald-200",
+    warn: "bg-rose-50 text-rose-800 border-rose-200",
+    neutral: "bg-zinc-100 text-zinc-700 border-zinc-200",
   }[tone];
   return (
     <span
@@ -122,11 +122,11 @@ export function StatTile({
 }) {
   return (
     <Card>
-      <p className="text-sm text-zinc-400">{label}</p>
-      <p className="mt-1 text-3xl font-semibold tracking-tight text-zinc-50">
+      <p className="text-sm text-zinc-500">{label}</p>
+      <p className="mt-1 text-3xl font-semibold tracking-tight text-ink">
         {value}
       </p>
-      {hint ? <p className="mt-1 text-xs text-zinc-500">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-zinc-400">{hint}</p> : null}
     </Card>
   );
 }
@@ -134,21 +134,15 @@ export function StatTile({
 export function Spinner() {
   return (
     <div className="flex items-center justify-center py-16">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-600 border-t-emerald-400" />
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-cobalt-600" />
     </div>
   );
 }
 
-export function EmptyState({
-  title,
-  hint,
-}: {
-  title: string;
-  hint?: string;
-}) {
+export function EmptyState({ title, hint }: { title: string; hint?: string }) {
   return (
-    <div className="rounded-xl border border-dashed border-white/10 px-6 py-12 text-center">
-      <p className="text-sm font-medium text-zinc-300">{title}</p>
+    <div className="rounded-xl border border-dashed border-zinc-300 bg-surface px-6 py-12 text-center">
+      <p className="text-sm font-medium text-zinc-700">{title}</p>
       {hint ? <p className="mt-1 text-sm text-zinc-500">{hint}</p> : null}
     </div>
   );

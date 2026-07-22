@@ -44,9 +44,9 @@ service cloud.firestore {
     }
 
     match /tenants/{tenantId} {
-      // Join-code lookup during customer signup requires a signed-in query;
-      // reads are limited to signed-in users.
-      allow read: if signedIn();
+      // Tenant docs are public marketing surface: branded portal pages
+      // ({slug}.domain) must resolve the venue name before login.
+      allow read: if true;
       allow create: if signedIn()
         && request.resource.data.ownerUid == request.auth.uid;
       allow update: if isSuperadmin()
@@ -57,11 +57,13 @@ service cloud.firestore {
       allow delete: if isSuperadmin();
 
       match /customers/{customerId} {
+        // The email branch also covers account linking right after signup,
+        // before the user profile document exists.
         allow read: if isSuperadmin()
           || isTenantAdmin(tenantId)
-          || (isTenantCustomer(tenantId)
+          || (signedIn()
               && (resource.data.linkedUid == request.auth.uid
-                  || resource.data.email == me().email));
+                  || resource.data.email == request.auth.token.email));
         allow create: if isSuperadmin() || isTenantAdmin(tenantId);
         // A customer may only set linkedUid on their own record during
         // account linking; everything else is admin territory.

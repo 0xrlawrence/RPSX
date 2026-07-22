@@ -9,7 +9,7 @@ import type { Role } from "@/lib/types";
 const loginRoutes: Record<Role, string> = {
   superadmin: "/superadmin/login",
   admin: "/admin/login",
-  customer: "/portal/login",
+  customer: "/portal",
 };
 
 export function RoleGuard({
@@ -33,10 +33,10 @@ export function RoleGuard({
   if (!configured) {
     return (
       <div className="mx-auto max-w-lg px-6 py-24 text-center">
-        <h1 className="text-xl font-semibold text-zinc-100">
+        <h1 className="text-xl font-semibold text-ink">
           Firebase is not configured
         </h1>
-        <p className="mt-2 text-sm text-zinc-400">
+        <p className="mt-2 text-sm text-zinc-600">
           Copy .env.example to .env.local and fill in your Firebase web app
           keys, then restart the dev server.
         </p>

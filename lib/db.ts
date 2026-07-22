@@ -17,6 +17,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { slugify } from "./tenant-url";
 import type {
   Customer,
   Tenant,
@@ -27,13 +28,13 @@ import type {
   WalletTx,
 } from "./types";
 
-function newJoinCode(): string {
-  const alphabet = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
-  let code = "";
-  for (let i = 0; i < 6; i++) {
-    code += alphabet[Math.floor(Math.random() * alphabet.length)];
+async function ensureUniqueSlug(base: string): Promise<string> {
+  let candidate = base || "venue";
+  for (let i = 2; i < 50; i++) {
+    if (!(await findTenantBySlug(candidate))) return candidate;
+    candidate = `${base}-${i}`;
   }
-  return code;
+  throw new Error("Could not find a free portal address for this name.");
 }
 
 /* ---------- users ---------- */
@@ -56,10 +57,11 @@ export async function createTenant(input: {
   ownerUid: string;
   ownerEmail: string;
   currency?: string;
-}): Promise<string> {
+}): Promise<{ tenantId: string; slug: string }> {
+  const slug = await ensureUniqueSlug(slugify(input.name));
   const ref = await addDoc(collection(db(), "tenants"), {
     name: input.name,
-    joinCode: newJoinCode(),
+    slug,
     ownerUid: input.ownerUid,
     ownerEmail: input.ownerEmail,
     currency: input.currency ?? "USD",
@@ -67,7 +69,7 @@ export async function createTenant(input: {
     plan: "starter" satisfies TenantPlan,
     createdAt: serverTimestamp(),
   });
-  return ref.id;
+  return { tenantId: ref.id, slug };
 }
 
 export async function getTenant(tenantId: string): Promise<Tenant | null> {
@@ -93,13 +95,11 @@ export async function deleteTenant(tenantId: string) {
   await deleteDoc(doc(db(), "tenants", tenantId));
 }
 
-export async function findTenantByJoinCode(
-  joinCode: string,
-): Promise<Tenant | null> {
+export async function findTenantBySlug(slug: string): Promise<Tenant | null> {
   const snap = await getDocs(
     query(
       collection(db(), "tenants"),
-      where("joinCode", "==", joinCode.toUpperCase().trim()),
+      where("slug", "==", slug.toLowerCase().trim()),
       limit(1),
     ),
   );
@@ -227,18 +227,18 @@ export async function listTransactions(
 /* ---------- customer account linking ---------- */
 
 /**
- * Called right after a customer signs up. Finds the customer record
- * matching their email inside the tenant with this join code and links
- * their auth uid to it.
+ * Called right after a customer signs up on a venue's portal. Finds the
+ * customer record matching their email inside that venue and links their
+ * auth uid to it.
  */
 export async function linkCustomerAccount(input: {
   uid: string;
   email: string;
   displayName: string;
-  joinCode: string;
+  slug: string;
 }): Promise<{ tenantId: string; customerId: string }> {
-  const tenant = await findTenantByJoinCode(input.joinCode);
-  if (!tenant) throw new Error("No business found for that join code.");
+  const tenant = await findTenantBySlug(input.slug);
+  if (!tenant) throw new Error("This venue portal does not exist.");
 
   const snap = await getDocs(
     query(
@@ -249,7 +249,7 @@ export async function linkCustomerAccount(input: {
   );
   if (snap.empty) {
     throw new Error(
-      "No customer record with your email exists at this business yet. Ask the staff to register you first.",
+      "This venue has not registered your email yet. Ask the staff to add you at the counter first.",
     );
   }
   const customerDoc = snap.docs[0];

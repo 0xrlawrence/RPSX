@@ -103,7 +103,7 @@ export default function CustomersPage() {
   return (
     <div className="space-y-6">
       <Card>
-        <h2 className="mb-4 font-semibold text-zinc-100">Register a customer</h2>
+        <h2 className="mb-4 font-semibold text-ink">Register a customer</h2>
         <form
           onSubmit={onAdd}
           className="grid grid-cols-1 items-end gap-4 md:grid-cols-4"
@@ -155,7 +155,7 @@ export default function CustomersPage() {
         <Card className="overflow-x-auto p-0">
           <table className="w-full min-w-[760px] text-left text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-xs uppercase tracking-wide text-zinc-500">
+              <tr className="border-b border-zinc-200 text-xs uppercase tracking-wide text-zinc-500">
                 <th className="px-5 py-3 font-medium">Customer</th>
                 <th className="px-5 py-3 font-medium">Card UID</th>
                 <th className="px-5 py-3 font-medium">Balance</th>
@@ -163,17 +163,17 @@ export default function CustomersPage() {
                 <th className="px-5 py-3 font-medium">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-zinc-100">
               {customers.map((c) => (
                 <tr key={c.id}>
                   <td className="px-5 py-3">
-                    <p className="font-medium text-zinc-200">{c.name}</p>
+                    <p className="font-medium text-ink">{c.name}</p>
                     <p className="text-xs text-zinc-500">{c.email}</p>
                   </td>
-                  <td className="px-5 py-3 font-mono text-zinc-300">
+                  <td className="px-5 py-3 font-mono text-zinc-700">
                     {c.cardUid}
                   </td>
-                  <td className="px-5 py-3 font-semibold text-zinc-100">
+                  <td className="px-5 py-3 font-semibold text-ink">
                     {formatCents(c.balanceCents)}
                   </td>
                   <td className="px-5 py-3">
@@ -243,11 +243,11 @@ export default function CustomersPage() {
       {txTarget ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <Card className="w-full max-w-sm">
-            <h3 className="font-semibold text-zinc-100">
+            <h3 className="font-semibold text-ink">
               {txType === "topup" ? "Top up" : txType === "charge" ? "Charge" : "Refund"}{" "}
               {txTarget.name}
             </h3>
-            <p className="mt-1 text-sm text-zinc-400">
+            <p className="mt-1 text-sm text-zinc-500">
               Current balance {formatCents(txTarget.balanceCents)}
             </p>
             <form onSubmit={onApplyTx} className="mt-4 space-y-4">
